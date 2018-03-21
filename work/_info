@@ -1,0 +1,75 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/Kartik/Documents/Workspace/csc258/veripong
+vDoubleSideShifter
+Z1 !s110 1521579314
+!i10b 1
+!s100 7CUeVD?`bmLm1bnB<oV<n3
+IHbZ1@amc836kN<h1C8J]k2
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+Z3 w1521579247
+Z4 8paddle.v
+Z5 Fpaddle.v
+L0 99
+Z6 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z7 !s108 1521579314.000000
+Z8 !s107 paddle.v|
+Z9 !s90 -reportprogress|300|-timescale|1ns/1ns|paddle.v|
+!i113 1
+Z10 o-timescale 1ns/1ns
+Z11 tCvgOpt 0
+n@double@side@shifter
+vpaddle
+R1
+!i10b 1
+!s100 m618QEB1`_14HW6e==`OD0
+INVHnze8cmDk_zm161F;I83
+R2
+R0
+R3
+R4
+R5
+L0 5
+R6
+r1
+!s85 0
+31
+R7
+R8
+R9
+!i113 1
+R10
+R11
+vRegister32bit
+R1
+!i10b 1
+!s100 lLPOC^M>;mj4e[oP<`kaI0
+I;6;Pe?VinGN^MJjZ<lmCa3
+R2
+R0
+R3
+R4
+R5
+L0 51
+R6
+r1
+!s85 0
+31
+R7
+R8
+R9
+!i113 1
+R10
+R11
+n@register32bit
