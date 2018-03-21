@@ -1,19 +1,20 @@
 vlib work
 vlog -timescale 1ns/1ns ball.v
-vsim ball
+vsim IDLRegister5Bit
 
 log {/*}
 add wave {/*}
 
 # Repeat Clock
-force {clk} 				0 0, 1 1 -repeat 2
+force {clk} 				0 0, 1 5 -repeat 10
 
 # Test One: Resetting
 # Test Two: Moving Up and Down
 # Test Three: End cases
 # Test Four: Combinations of Up and Down
-force {reset} 				0 0, 1 10
-force {isHittingLeft} 	0 0, 1 50, 0 75
-force {isHittingRight} 	0 0, 1 75
+force {load} 			0 0, 1 10
+force {loadVal}		2#00100 0
+force {increment} 	0 0, 1 10
+force {decrement} 	0 0
 
-run 1400ns
+run 400ns
