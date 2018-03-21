@@ -1,8 +1,8 @@
-`include "paddle.v"
-`include "score.v"
-`include "ball.v"
+//`include "paddle.v"
+//`include "score.v"
+//`include "ball.v"
 
-module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore);
+module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore, leftPaddleY, rightPaddleY);
 
 	// Clock signal
 	input clk;
@@ -26,6 +26,10 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 	// Paddle positions
 	wire [31:0] leftPaddlePosition;
 	wire [31:0] rightPaddlePosition;
+	
+	// Paddle top y positions
+	output reg [5:0] leftPaddleY;
+	output reg [5:0] rightPaddleY;
 	
 	// Ball positions
 	wire [5:0] xBallPosition;
@@ -142,5 +146,19 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 			end
 		end
 	end
+
 	
+	integer i;
+	
+	always @(*)
+	begin
+		
+		for (i = 0; i < 32; i = i + 1)
+		begin
+			if (leftPaddlePosition[i] == 1'b1)
+				leftPaddleY = i;
+			if (rightPaddlePosition[i] == 1'b1)
+				rightPaddleY = i;
+		end
+	end
 endmodule 
