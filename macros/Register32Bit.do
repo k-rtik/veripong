@@ -1,6 +1,6 @@
 vlib work
 vlog -timescale 1ns/1ns paddle.v
-vsim DoubleSideShifter
+vsim Register32bit
 
 log {/*}
 add wave {/*}
