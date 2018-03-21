@@ -1,5 +1,5 @@
 vlib work
-vlog -timescale 1ns/1ns paddle.v
+vlog -timescale 1ns/1ns ../paddle.v
 vsim Register32bit
 
 log {/*}

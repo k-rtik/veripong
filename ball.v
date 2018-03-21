@@ -1,4 +1,4 @@
-module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition);
+module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isBallMoving);
 	
 	// Clock signal
 	input clk;
@@ -16,6 +16,9 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition);
 	output [5:0] xPosition;
 	output [4:0] yPosition;
 	
+	// Output signal that determines whether the ball is going to move or not
+	output reg isBallMoving;
+	
 	// Counter that controls the speed of the ball
 	reg [3:0] speed;
 	reg [18:0] time_counter;
@@ -23,33 +26,13 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition);
 	reg  isMovingDown;
 	
 	// Wires that control the increment and decrement signals for the coordinate registers
-	reg increment_x;
-	reg increment_y;
-	reg decrement_x;
-	reg decrement_y;
+	reg incrementX;
+	reg incrementY;		
+	reg decrementX;
+	reg decrementY;
 	
 	// Store speed
 	integer k;
-	
-	// 5 bit Increment-Decrement-Load register for the y coordinates of the ball
-	IDLRegister5Bit yPositionRegister(
-		.clk(clk),
-		.increment(increment_y),
-		.decrement(decrement_y),
-		.load(reset),
-		.loadVal(5'b00100),
-		.out(yPosition)
-	);
-	
-	// 6 bit Increment-Decrement-Load register for the x coordinates of the ball
-	IDLRegister6Bit xPositionRegister(
-		.clk(clk),
-		.increment(increment_x),
-		.decrement(decrement_x),
-		.load(reset),
-		.loadVal(6'b001000),
-		.out(xPosition)	
-	);
 	
 	// Control the moving of the ball
 	always @(posedge clk, negedge reset)
@@ -65,28 +48,34 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition);
 			isMovingRight <= 1'b0;
 			isMovingDown <= 1'b1;
 					
-			increment_x <= 1'b0;
-			increment_y <= 1'b0;
-			decrement_x <= 1'b0;
-			decrement_y <= 1'b0;
+			incrementX <= 1'b0;
+			incrementY <= 1'b0;
+			decrementX <= 1'b0;
+			decrementY <= 1'b0;
+			
+			isBallMoving <= 1'b0;
 		end
 		
 		else
-		begin: move_ball
+		begin
 					
 			// Reset incrementing signals
-			increment_x <= 1'b0;
-			increment_y <= 1'b0;
-			decrement_x <= 1'b0;
-			decrement_y <= 1'b0;
+			incrementX <= 1'b0;
+			incrementY <= 1'b0;
+			decrementX <= 1'b0;
+			decrementY <= 1'b0;
+			isBallMoving <= 1'b0;
 							
 			// Move the time counter up
 			//k = speed;
-			time_counter = time_counter + 1;
+			time_counter = time_counter + 19'b1;
 					
 			// Check if it is time for the ball to be moved
 			if (time_counter >= 19'b0000000000000000011)
 			begin
+				// Signal that the ball is moving
+				isBallMoving <= 1'b1;
+				
 				// Reset the timer
 				time_counter <= 19'b0000000000000000000;
 							
@@ -102,34 +91,55 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition);
 					isMovingDown <= 1'b0;
 				
 				// If the ball is ricocheting off the left wall
-				if (xPosition <= 6'b000001)
+				if (xPosition == 6'b000001)
 				begin
-					if (isHittingLeft == 1'b1)
-						isMovingRight <= 1'b1;
+					// if (isHittingLeft == 1'b1)
+						isMovingRight = 1'b1;
 				end
 				
 				// If the ball is ricocheting off the right wall
 				if (xPosition >= 6'b111110)
 				begin
 					if (isHittingRight == 1'b1)
-						isMovingRight <= 1'b0;
+						isMovingRight = 1'b0;
 				end
 				
 				// Move the balls in the right positions
 				if (isMovingRight == 1'b1)
-					increment_x <= 1'b1;
+					incrementX <= 1'b1;
 								
 				else
-					decrement_x <= 1'b1;
+					decrementX <= 1'b1;
 										
 				if (isMovingDown == 1'b1)
-					increment_y <= 1'b1;
+					incrementY <= 1'b1;
 									
 				else
-					decrement_y <= 1'b1;
+					decrementY <= 1'b1;
 				end
 			end
 		end
+		
+			
+	// 5 bit Increment-Decrement-Load register for the y coordinates of the ball
+	IDLRegister5Bit yPositionRegister(
+		.clk(clk),
+		.increment(incrementY),
+		.decrement(decrementY),
+		.load(reset),
+		.loadVal(5'b00100),
+		.out(yPosition)
+	);
+	
+	// 6 bit Increment-Decrement-Load register for the x coordinates of the ball
+	IDLRegister6Bit xPositionRegister(
+		.clk(clk),
+		.increment(incrementX),
+		.decrement(decrementX),
+		.load(reset),
+		.loadVal(6'b001000),
+		.out(xPosition)	
+	);
 	
 endmodule
 

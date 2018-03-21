@@ -1,5 +1,5 @@
 vlib work
-vlog -timescale 1ns/1ns ball.v
+vlog -timescale 1ns/1ns ../ball.v
 vsim IDLRegister5Bit
 
 log {/*}

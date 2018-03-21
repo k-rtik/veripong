@@ -21,31 +21,39 @@ module paddle(clk, reset, moveUp, moveDown, verticalPosition);
 	reg enableUp;
 	reg enableDown;
 	
-	// Reset the values of enable up and down
-	always @(negedge reset)
-	begin
-		enableUp = 1'b0;
-		enableDown = 1'b0;
-	end
-	
 	// End cases logic
 	always @(*)
 	begin
-		if (moveUp == 1'b1)
+		if (reset == 1'b0)
 		begin
-			if (verticalPosition[31] == 1'b1)
-				enableUp = 1'b0;
-			
-			else
-				enableUp = 1'b1;
+			enableUp = 1'b0;
+			enableDown = 1'b0;
 		end
 		
-		if (moveDown == 1'b1)
+		else
 		begin
-			if (verticalPosition[0] == 1'b1)
+			if (moveUp == 1'b1)
+			begin
+				if (verticalPosition[31] == 1'b1)
+					enableUp = 1'b0;
+				
+				else
+					enableUp = 1'b1;
+			end
+			
+			else if (moveUp == 1'b0)
+				enableUp = 1'b0;
+			
+			if (moveDown == 1'b0)
 				enableDown = 1'b0;
-			else
-				enableDown = 1'b1;
+			
+			else if (moveDown == 1'b1)
+			begin
+				if (verticalPosition[0] == 1'b1)
+					enableDown = 1'b0;
+				else
+					enableDown = 1'b1;
+			end
 		end
 	end
 	
@@ -74,20 +82,24 @@ module Register32bit(clk, reset, leftShift, rightShift, out);
 	wire [31:0] loadVals = 32'b00000000000011111111000000000000;
 	
 	// Wires to connect double side shifters to each other
-	wire [31:0] leftVals;
-	wire [31:0] rightVals;
+	reg [31:0] leftVals;
+	reg [31:0] rightVals;
+	
+	integer i;
 	
 	// Assign the wires to the proper output connections
-	genvar i;
-	
-	for (i = 0; i < 31; i=i+1)
+	always @(*)
 	begin
-		assign rightVals[i] = out[i+1];
-		assign leftVals[i+1] = out[i];
+		for (i = 0; i < 31; i = i+1)
+		begin
+			rightVals[i] = out[i+1];
+			leftVals[i+1] = out[i];
+		end
+		
+		
+		leftVals[0] = 1'b0;
+		rightVals[31] = 1'b0;
 	end
-	
-	assign leftVals[0] = 1'b0;
-	assign rightVals[31] = 1'b0;
 	
 	// Double sided shifters connected to each other to store the position of the paddle
 	DoubleSideShifter ds[31:0] (
@@ -104,7 +116,7 @@ module Register32bit(clk, reset, leftShift, rightShift, out);
 endmodule
 
 // Flip flop for Register
-module DoubleSideShifter(clk, enableLeft, leftVal, enableRight, rightVal, enableLoad, loadVal, out);
+	module DoubleSideShifter(clk, enableLeft, leftVal, enableRight, rightVal, enableLoad, loadVal, out);
 	// Clock signal
 	input clk;
 	
