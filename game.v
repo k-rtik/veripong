@@ -2,7 +2,7 @@
 //`include "score.v"
 //`include "ball.v"
 
-module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore, leftPaddleY, rightPaddleY);
+module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore, leftPaddleY, rightPaddleY, xBallPosition, yBallPosition);
 
 	// Clock signal
 	input clk;
@@ -32,8 +32,8 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 	output reg [5:0] rightPaddleY;
 	
 	// Ball positions
-	wire [5:0] xBallPosition;
-	wire [4:0] yBallPosition;
+	output [5:0] xBallPosition;
+	output [4:0] yBallPosition;
 	
 	// Ball moving signal
 	wire isBallMoving;

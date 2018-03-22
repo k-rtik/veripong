@@ -16,6 +16,7 @@ input clk;
 // Reset Signal
 input reset;
 
+// Params for state machines
 localparam MAIN_MENU, GAME_START, GAME, GAME_END;
 
 endmodule
