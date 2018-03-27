@@ -1,4 +1,4 @@
-module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isBallMoving);
+module ball(clk, reset, xPosition, yPosition, isBallMovingNext);
 	
 	// Clock signal
 	input clk;
@@ -6,22 +6,18 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isB
 	// Reset signal
 	input reset;
 	
-	// Signal that indicates that the ball is hitting the left paddle
-	input isHittingLeft;
-	
-	// Signal that indicatees that the ball is hitting the right paddle
-	input isHittingRight;
-	
 	// The horizontal and vertical positions of the ball
 	output [5:0] xPosition;
 	output [4:0] yPosition;
 	
 	// Output signal that determines whether the ball is going to move or not
-	output reg isBallMoving;
+	output reg isBallMovingNext;
 	
 	// Counter that controls the speed of the ball
 	reg [3:0] speed;
 	reg [18:0] time_counter;
+  
+  // Ball direction signals
 	reg isMovingRight;
 	reg  isMovingDown;
 	
@@ -33,7 +29,69 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isB
 	
 	// Store speed
 	integer k;
+  
+  // Store clock reset times
+  localparam BALL_SLOWEST_SPEED = 19'd5, BALL_MOVE_STAGE = 19'd4;
 	
+  // Check collision detection
+  always @(*)
+  begin
+    
+    if (reset == 1'b0)
+    begin
+      isMovingRight <= 1'b0;
+			isMovingDown <= 1'b1;
+					
+			incrementX <= 1'b0;
+			incrementY <= 1'b0;
+			decrementX <= 1'b0;
+			decrementY <= 1'b0;
+    end
+  
+    begin
+    // If the ball is ricocheting off the top wall
+		if (yPosition <= 5'b00001)
+      isMovingDown = 1'b1;
+									
+		// If the ball is ricocheting off the bottom wall
+		else if (yPosition >= 5'b11110)
+			isMovingDown = 1'b0;
+				
+		// If the ball is ricocheting off the left wall
+		if (xPosition == 6'b000001)
+      isMovingRight = 1'b1;
+				
+		// If the ball is ricocheting off the right wall
+		if (xPosition >= 6'b111110)
+			isMovingRight = 1'b0;
+    end
+      
+    // Move the balls in the right positions
+		if (isMovingRight == 1'b1)
+    begin
+      incrementX = 1'b1;
+      decrementX = 1'b0;
+    end
+				
+    else
+    begin
+      decrementX = 1'b1;
+      incrementX = 1'b0;
+		end
+        
+		if (isMovingDown == 1'b1)
+      begin
+        incrementY = 1'b1;
+        decrementY = 1'b0;
+      end
+        
+    else
+    begin
+				decrementY = 1'b1;
+        incrementY = 1'b0;
+    end
+  end
+  
 	// Control the moving of the ball
 	always @(posedge clk, negedge reset)
 	begin
@@ -43,84 +101,41 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isB
 				
 			// Reset all variable values
 			speed <= 4'b0001;
-			time_counter <=19'b0000000000000000000;
+			time_counter <= 19'b0000000000000000000;
 			
-			isMovingRight <= 1'b0;
-			isMovingDown <= 1'b1;
-					
-			incrementX <= 1'b0;
-			incrementY <= 1'b0;
-			decrementX <= 1'b0;
-			decrementY <= 1'b0;
-			
-			isBallMoving <= 1'b0;
+			isBallMovingNext <= 1'b0;
 		end
 		
 		else
 		begin
-					
-			// Reset incrementing signals
-			incrementX <= 1'b0;
-			incrementY <= 1'b0;
-			decrementX <= 1'b0;
-			decrementY <= 1'b0;
-			isBallMoving <= 1'b0;
-							
-			// Move the time counter up
-			//k = speed;
-			time_counter = time_counter + 19'b1;
-					
-			// Check if it is time for the ball to be moved
-			if (time_counter >= 19'b0000000000000000011)
-			begin
-				// Signal that the ball is moving
-				isBallMoving <= 1'b1;
+			// Handle moving the ball
+			if (time_counter == BALL_SLOWEST_SPEED)
+      begin
+        isBallMovingNext <= 1'b0;
 				
-				// Reset the timer
+        // Reset the timer
 				time_counter <= 19'b0000000000000000000;
 							
 				// Increase the speed by one
-				speed <= speed + 4'b0001;
-								
-				// If the ball is ricocheting off the top wall
-				if (yPosition <= 5'b00001)
-					isMovingDown <= 1'b1;
-									
-				// If the ball is ricocheting off the bottom wall
-				else if (yPosition >= 5'b11110)
-					isMovingDown <= 1'b0;
-				
-				// If the ball is ricocheting off the left wall
-				if (xPosition == 6'b000001)
-				begin
-					// if (isHittingLeft == 1'b1)
-						isMovingRight = 1'b1;
-				end
-				
-				// If the ball is ricocheting off the right wall
-				if (xPosition >= 6'b111110)
-				begin
-					if (isHittingRight == 1'b1)
-						isMovingRight = 1'b0;
-				end
-				
-				// Move the balls in the right positions
-				if (isMovingRight == 1'b1)
-					incrementX <= 1'b1;
-								
-				else
-					decrementX <= 1'b1;
-										
-				if (isMovingDown == 1'b1)
-					incrementY <= 1'b1;
-									
-				else
-					decrementY <= 1'b1;
-				end
+				//speed <= speed + 4'b0001;
 			end
+      
+      else if (time_counter == BALL_MOVE_STAGE)
+      begin
+				isBallMovingNext <= 1'b1;
+
+        time_counter <= time_counter + 19'b1;
+      end
+      
+      else
+      begin
+        // Move the time counter up
+        //k = speed;
+        time_counter = time_counter + 19'b1;
+      end
 		end
-		
-			
+  end
+				
 	// 5 bit Increment-Decrement-Load register for the y coordinates of the ball
 	IDLRegister5Bit yPositionRegister(
 		.clk(clk),
@@ -128,7 +143,8 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isB
 		.decrement(decrementY),
 		.load(reset),
 		.loadVal(5'b00100),
-		.out(yPosition)
+		.out(yPosition),
+    .enable(isBallMovingNext)
 	);
 	
 	// 6 bit Increment-Decrement-Load register for the x coordinates of the ball
@@ -138,16 +154,20 @@ module ball(clk, reset, isHittingLeft, isHittingRight, xPosition, yPosition, isB
 		.decrement(decrementX),
 		.load(reset),
 		.loadVal(6'b001000),
-		.out(xPosition)	
+		.out(xPosition),
+    .enable(isBallMovingNext)
 	);
 	
 endmodule
 
-module IDLRegister5Bit(clk, increment, decrement, load, loadVal, out);
+module IDLRegister5Bit(clk, enable, increment, decrement, load, loadVal, out);
 
 	// Clock signal
 	input clk;
 	
+  // Enable increment or decrement signal
+  input enable;
+  
 	// Increment and Decrement signals
 	input increment;
 	input decrement;
@@ -171,15 +191,18 @@ module IDLRegister5Bit(clk, increment, decrement, load, loadVal, out);
 		
 		else
 		begin
-			if (increment == 1'b1)
-				out <= out + 5'b00001;
-			else if (decrement == 1'b1)
-				out <= out + 5'b11111;
-			end
-		end
+      if (enable == 1'b1)
+      begin
+        if (increment == 1'b1)
+          out <= out + 5'b00001;
+        else if (decrement == 1'b1)
+          out <= out + 5'b11111;
+      end
+    end
+  end
 endmodule
 
-module IDLRegister6Bit(clk, increment, decrement, load, loadVal, out);
+module IDLRegister6Bit(clk, enable, increment, decrement, load, loadVal, out);
 
 	// Clock signal
 	input clk;
@@ -187,6 +210,9 @@ module IDLRegister6Bit(clk, increment, decrement, load, loadVal, out);
 	// Increment and Decrement signals
 	input increment;
 	input decrement;
+  
+  // Enable signal for incrementing/decrementing
+  input enable;
 	
 	// Load signal
 	input load;
@@ -202,15 +228,18 @@ module IDLRegister6Bit(clk, increment, decrement, load, loadVal, out);
 	begin
 		if (load == 1'b0)
 		begin
-			out = loadVal;
+			out <= loadVal;
 		end
 		
 		else
 		begin
-			if (increment == 1'b1)
-				out <= out + 6'b000001;
-			else if (decrement == 1'b1)
-				out <= out + 6'b111111;
-		end
+      if (enable == 1'b1)
+      begin
+        if (increment == 1'b1)
+          out <= out + 6'b000001;
+        else if (decrement == 1'b1)
+          out <= out + 6'b111111;
+      end
+    end
 	end
 endmodule

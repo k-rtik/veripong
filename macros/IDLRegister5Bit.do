@@ -6,15 +6,15 @@ log {/*}
 add wave {/*}
 
 # Repeat Clock
-force {clk} 				0 0, 1 5 -repeat 10
+force {clk} 				0 0, 1 1 -repeat 2
 
 # Test One: Resetting
 # Test Two: Moving Up and Down
 # Test Three: End cases
 # Test Four: Combinations of Up and Down
-force {load} 			0 0, 1 10
+force {load} 			0 0, 1 1
 force {loadVal}		2#00100 0
-force {increment} 	0 0, 1 10
+force {increment} 	0 0, 1 2
 force {decrement} 	0 0
 
-run 400ns
+run 20ns

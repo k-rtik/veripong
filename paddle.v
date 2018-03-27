@@ -88,7 +88,7 @@ module Register32bit(clk, reset, leftShift, rightShift, out);
 	integer i;
 	
 	// Assign the wires to the proper output connections
-	initial @(*)
+	always @(*)
 	begin
 		for (i = 0; i < 31; i = i+1)
 		begin

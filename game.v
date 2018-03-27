@@ -2,7 +2,7 @@
 //`include "score.v"
 //`include "ball.v"
 
-module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore, leftPaddleY, rightPaddleY, xBallPosition, yBallPosition);
+module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, rightPaddleDown, leftScore, rightScore, leftPaddleY, rightPaddleY, xBallPosition, yBallPosition, x, y, colour, graphics_enable);
 
 	// Clock signal
 	input clk;
@@ -36,7 +36,7 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 	output [4:0] yBallPosition;
 	
 	// Ball moving signal
-	wire isBallMoving;
+	wire isBallMovingNext;
 	
 	// Ball collision enablers
 	reg isHittingLeft;
@@ -48,6 +48,14 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 	
 	// Enable signal that controls when the game components reset
 	reg game_reset;
+  
+  output x;
+  output y;
+  output colour;
+  
+  output graphics_enable;
+  
+  graphics g1(xBallPosition, yBallPosition, leftPaddleY, rightPaddleY, clk, reset, x, y, colour, graphics_enable);
 	
 	// Instances of the paddles
 	paddle leftPaddle(
@@ -69,12 +77,10 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 	// Instances of the ball
 	ball b(
 		.clk(clk), 
-		.reset(game_reset), 
-		.isHittingLeft(isHittingLeft), 
-		.isHittingRight(isHittingRight), 
+		.reset(game_reset),
 		.xPosition(xBallPosition), 
 		.yPosition(yBallPosition),
-		.isBallMoving(isBallMoving)
+    .isBallMovingNext(isBallMovingNext)
 	);
 	
 	// Scoreboard for the game
@@ -108,7 +114,7 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 			es_p2 <= 1'b0;
 			
 			// Collision detection if the ball is moving
-			if (isBallMoving == 1'b1)
+			if (isBallMovingNext == 1'b1)
 				begin
 				// Left Paddle Collision
 				if (xBallPosition == 6'b000001)
@@ -161,4 +167,5 @@ module game(clk, reset, isPvP, leftPaddleUp, leftPaddleDown, rightPaddleUp, righ
 				rightPaddleY = i;
 		end
 	end
+  
 endmodule 
