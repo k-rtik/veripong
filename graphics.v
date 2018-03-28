@@ -1,5 +1,3 @@
-// `include "game.v"
-
 module graphics(gameXBallPosition, gameYBallPosition, gameLeftPaddleY, gameRightPaddleY, clk, reset, x, y, colour, enable);
 	
   input clk;
@@ -15,8 +13,8 @@ module graphics(gameXBallPosition, gameYBallPosition, gameLeftPaddleY, gameRight
   localparam FRAMES_60 = 26'd833333;
   
   // Store states
-  localparam GET_GAME_POS = 3'd0, UNDRAW_PADDLE_LEFT = 3'd1, UNDRAW_PADDLE_RIGHT = 3'd2, UNDRAW_BALL = 3'd3, DRAW_PADDLE_LEFT = 3'd4, DRAW_PADDLE_RIGHT = 3'd5, DRAW_BALL = 3'd6, WAIT = 3'd7;
-  reg [2:0] state;
+  localparam GET_GAME_POS = 4'd0, UNDRAW_PADDLE_LEFT = 4'd1, UNDRAW_PADDLE_RIGHT = 4'd2, UNDRAW_BALL = 4'd3, DRAW_PADDLE_LEFT = 4'd4, DRAW_PADDLE_RIGHT = 4'd5, DRAW_BALL = 4'd6, WAIT = 4'd7, RESET = 4'd8;
+  reg [3:0] state;
   
   reg [25:0] clock;
   reg [2:0] paddleCounter;
@@ -31,16 +29,16 @@ module graphics(gameXBallPosition, gameYBallPosition, gameLeftPaddleY, gameRight
 	reg [4:0] lastYBallPosition;
   
   // Last paddle top y positions
-	reg [4:0] thisLeftPaddleY;
-	reg [4:0] thisRightPaddleY;
+	reg [5:0] thisLeftPaddleY;
+	reg [5:0] thisRightPaddleY;
 	
 	// Last ball positions
 	reg [5:0] thisXBallPosition;
 	reg [4:0] thisYBallPosition;
   
   // Game paddle top y positions
-	input [4:0] gameLeftPaddleY;
-	input [4:0] gameRightPaddleY;
+	input [5:0] gameLeftPaddleY;
+	input [5:0] gameRightPaddleY;
 	
 	// Game ball positions
 	input [5:0] gameXBallPosition;
@@ -71,7 +69,7 @@ module graphics(gameXBallPosition, gameYBallPosition, gameLeftPaddleY, gameRight
       lastYBallPosition <= 5'b0;
       
       // Set state
-      state <= WAIT;
+      state <= RESET;
       x <= 6'b0;
       y <= 5'b0;
       colour <= 3'b000;
@@ -79,6 +77,25 @@ module graphics(gameXBallPosition, gameYBallPosition, gameLeftPaddleY, gameRight
     end
     
     case(state)
+    
+      RESET:
+      begin
+        if (y == 5'b111111)
+        begin
+          state <= WAIT;
+        end
+        
+        if (x == 6'b111111)
+        begin
+          x <= 6'b0;
+          y <= y + 5'b1;
+        end
+        
+        else
+        begin
+          x <= x + 6'b1;
+        end
+      end
     
       GET_GAME_POS:
       begin
